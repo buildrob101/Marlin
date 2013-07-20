@@ -1,3 +1,24 @@
+
+NOTE: This branch (created Jul 17) includes additional DUAL_X_CARRIAGE functionality 
+which does not require the slicer to support dual x carriage printers. 
+
+The baseline Marlin firmware does now include DUAL_X_CARRIAGE functionality but it 
+requires that the slicer takes control of the parking and unparking of heads. This is the 
+correct course of action in the long term (IMHO). 
+
+Consequently, the functionality in this branch doesn't belong in the firmware in the long 
+term ... but it makes printing with dual x carriages much simpler in the short term. 
+
+Thus, I have no intentions of merging this branch but feel free to copy it.
+
+The primary differences are:
+
+- in the baseline, changing the tool number does not move the heads
+
+- in this branch, changing the tool number will automatically park the old head
+- in this branch the firmware will also defer and aggregate unecessary travel moves after a tool change.
+- in this branch the park/unpark operation supports Z-lifting.
+
 ==========================
 Marlin 3D Printer Firmware
 ==========================
