@@ -2040,23 +2040,22 @@ void process_commands()
     case 605: // Set dual x-carriage movement mode:
               //    M605 S0: Full control mode. The slicer has full control over x-carriage movement
               //    M605 S1: Auto-park mode. The inactive head will auto park/unpark without slicer involvement
-              //    M605 S2 Xnnn [Rmmm]: Duplication mode. The second extruder will duplicate the first with nnn
+              //    M605 S2 [Xnnn] [Rmmm]: Duplication mode. The second extruder will duplicate the first with nnn
               //                         millimeters x-offset and an optional differential hotend temperature of 
-              //                         mmm degrees. E.g., with "M605 S2 X100 S2" the second extruder will duplicate
+              //                         mmm degrees. E.g., with "M605 S2 X100 R2" the second extruder will duplicate
               //                         the first with a spacing of 100mm in the x direction and 2 degrees hotter.
               //
               //    Note: the X axis should be homed after changing dual x-carriage mode.
     {
         st_synchronize();
         
-        dual_x_carriage_mode = DEFAULT_DUAL_X_CARRIAGE_MODE;
         if (code_seen('S'))
           dual_x_carriage_mode = code_value();
 
         if (dual_x_carriage_mode == DXC_DUPLICATION_MODE)
         {
           if (code_seen('X'))
-            duplicate_extruder_x_offset = max(code_value(),X2_MIN_POS);
+            duplicate_extruder_x_offset = max(code_value(),X2_MIN_POS - x_home_pos(0));
 
           if (code_seen('R'))
             duplicate_extruder_temp_offset = code_value();
@@ -2078,7 +2077,7 @@ void process_commands()
         }
         
         active_extruder_parked = false;
-        extruder_duplication_enabled = false; // only gets re-enabled after homing 
+        extruder_duplication_enabled = false;
         delayed_move_time = 0;
     }
     break;
@@ -2180,12 +2179,9 @@ void process_commands()
         current_position[Y_AXIS] = current_position[Y_AXIS] -
                      extruder_offset[Y_AXIS][active_extruder] +
                      extruder_offset[Y_AXIS][tmp_extruder];
-        if (dual_x_carriage_mode != DXC_DUPLICATION_MODE)
-        {
-          current_position[Z_AXIS] = current_position[Z_AXIS] -
-                       extruder_offset[Z_AXIS][active_extruder] +
-                       extruder_offset[Z_AXIS][tmp_extruder];
-        }
+        current_position[Z_AXIS] = current_position[Z_AXIS] -
+                     extruder_offset[Z_AXIS][active_extruder] +
+                     extruder_offset[Z_AXIS][tmp_extruder];
                      
         active_extruder = tmp_extruder;
 
@@ -2199,21 +2195,12 @@ void process_commands()
         }
         else if (dual_x_carriage_mode == DXC_DUPLICATION_MODE)
         {
-          if (active_extruder == 0)
-          {
-            active_extruder_parked = true; // this triggers the second extruder to move into duplication position
+          active_extruder_parked = (active_extruder == 0); // this triggers the second extruder to move into the duplication position
+          if (active_extruder == 0 || active_extruder_parked)
             current_position[X_AXIS] = inactive_extruder_x_pos; 
-            inactive_extruder_x_pos = destination[X_AXIS];
-          }
           else
-          {
-            if (active_extruder_parked)
-              current_position[X_AXIS] = inactive_extruder_x_pos; 
-            else
-              current_position[X_AXIS] = destination[X_AXIS] + duplicate_extruder_x_offset; 
-            inactive_extruder_x_pos = destination[X_AXIS];
-            active_extruder_parked = false;
-          }
+            current_position[X_AXIS] = destination[X_AXIS] + duplicate_extruder_x_offset; 
+          inactive_extruder_x_pos = destination[X_AXIS];
           extruder_duplication_enabled = false; 
         }
         else

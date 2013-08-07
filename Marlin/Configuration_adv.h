@@ -169,19 +169,19 @@
 #define X2_STEP_PIN 25
 #define X2_DIR_PIN 23
 
-// There a few selectable movement modes for dual x-carriage using M605 S<mode>
-//    Mode 0: Fully control. The slicer has full control over both x-carriages and can achieve optimal travel results
-//                           as long as it supports dual x-carriage mode. (M605 S0)
+// There are a few selectable movement modes for dual x-carriages using M605 S<mode>
+//    Mode 0: Full control. The slicer has full control over both x-carriages and can achieve optimal travel results
+//                           as long as it supports dual x-carriages. (M605 S0)
 //    Mode 1: Auto-park mode. The firmware will automatically park and unpark the x-carriages on tool changes so
-//                           that additional slicer support for dual x-carriages is not required. (M605 S1)
+//                           that additional slicer support is not required. (M605 S1)
 //    Mode 2: Duplication mode. The firmware will transparently make the second x-carriage and extruder copy all  
 //                           actions of the first x-carriage. This allows the printer to print 2 arbitrary items at
-//                           once. (2nd extruder x offset and optional temp offset are set using: M605 S2 Xnnn [Rmmm])
+//                           once. (2nd extruder x offset and temp offset are set using: M605 S2 [Xnnn] [Rmmm])
 
-// This is the default power-up mode which can be later changed using M605. 
+// This is the default power-up mode which can be later using M605. 
 #define DEFAULT_DUAL_X_CARRIAGE_MODE 1 
 
-// As the x-carriages are independent we can now account for any relative Z offset (except in duplication mode)
+// As the x-carriages are independent we can now account for any relative Z offset
 #define EXTRUDER1_Z_OFFSET 0.0           // z offset relative to extruder 0
 
 // Default settings in "Auto-park Mode" 
